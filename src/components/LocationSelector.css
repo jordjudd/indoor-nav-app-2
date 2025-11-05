@@ -1,0 +1,47 @@
+.location-selector {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.selector-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
+
+.selector-group label {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #333;
+}
+
+.location-select {
+  padding: 10px;
+  border: 2px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+  background-color: white;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.location-select:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.location-select:hover {
+  border-color: #bbb;
+}
+
+@media (min-width: 768px) {
+  .location-selector {
+    flex-direction: row;
+    gap: 20px;
+  }
+  
+  .selector-group {
+    flex: 1;
+  }
+}

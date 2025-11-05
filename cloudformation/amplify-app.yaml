@@ -1,0 +1,85 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'CloudFormation template for Indoor Navigation App with AWS Amplify'
+
+Parameters:
+  AppName:
+    Type: String
+    Default: indoor-navigation-app
+    Description: Name of the application
+  
+  GitHubRepo:
+    Type: String
+    Description: GitHub repository URL
+  
+  GitHubBranch:
+    Type: String
+    Default: main
+    Description: GitHub branch to deploy
+  
+  GitHubToken:
+    Type: String
+    NoEcho: true
+    Description: GitHub personal access token
+    
+  Environment:
+    Type: String
+    Default: production
+    Description: Environment name
+
+Resources:
+  AmplifyApp:
+    Type: AWS::Amplify::App
+    Properties:
+      Name: !Ref AppName
+      Repository: !Ref GitHubRepo
+      AccessToken: !Ref GitHubToken
+      BuildSpec: |
+        version: 1
+        frontend:
+          phases:
+            preBuild:
+              commands:
+                - npm install
+            build:
+              commands:
+                - npm run build
+          artifacts:
+            baseDirectory: build
+            files:
+              - '**/*'
+          cache:
+            paths:
+              - node_modules/**/*
+      EnvironmentVariables:
+        - Name: ENVIRONMENT
+          Value: !Ref Environment
+      Tags:
+        - Key: Application
+          Value: !Ref AppName
+        - Key: Environment
+          Value: !Ref Environment
+
+  AmplifyBranch:
+    Type: AWS::Amplify::Branch
+    Properties:
+      AppId: !GetAtt AmplifyApp.AppId
+      BranchName: !Ref GitHubBranch
+      EnableAutoBuild: true
+      Tags:
+        - Key: Application
+          Value: !Ref AppName
+        - Key: Environment
+          Value: !Ref Environment
+
+Outputs:
+  AmplifyAppId:
+    Description: Amplify App ID
+    Value: !GetAtt AmplifyApp.AppId
+      
+  AmplifyAppUrl:
+    Description: Amplify App URL
+    Value: !Sub 'https://${GitHubBranch}.${AmplifyApp.DefaultDomain}'
+      
+  AmplifyConsoleUrl:
+    Description: Amplify Console URL
+    Value: !Sub 'https://console.aws.amazon.com/amplify/home?region=${AWS::Region}#/${AmplifyApp.AppId}'
